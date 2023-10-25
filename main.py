@@ -16,123 +16,163 @@ class App(customtkinter.CTk):
         self.geometry(f"{1100}x{580}")
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        # self.grid_rowconfigure(0, weight=1)
+        # self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
 
-        # разметка сайдбара
-        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+        # окно для вкладок
+        self.top_panel = customtkinter.CTkFrame(self, fg_color='#B0C4DE', corner_radius=10, border_color='black', border_width=1, height=40)
+        self.top_panel.grid(row=0, column=1, sticky='we', padx=10, pady=1)
+        #self.top_panel.grid_columnconfigure(list(range(8)), weight=1)
+        self.button_cof = customtkinter.CTkButton(self.top_panel, text='Коэффициенты', height=10)
+        self.button_cof.grid(row=0, column=0, pady=2, padx=[10, 2], sticky='w')
+        self.button_cargo = customtkinter.CTkButton(self.top_panel, text='Груз', height=10)
+        self.button_cargo.grid(row=0, column=1, pady=2, padx=2, sticky='w')
 
-        # кнопки на сайдбаре
-        self.coefficient_image = customtkinter.CTkImage(Image.open('images/coefficient.png'), size=(30, 30))
-        self.coefficient_button = customtkinter.CTkButton(self.sidebar_frame,
-                                                          text="Коэффициенты",
-                                                          image=self.coefficient_image,
-                                                          corner_radius=0,
-                                                          anchor="w",
-                                                          font=customtkinter.CTkFont(family='Courier New',
-                                                                                     size=15),
-                                                          fg_color="transparent",
-                                                          text_color=("gray10", "gray90"),
-                                                          border_spacing=10,
-                                                          )
-        self.coefficient_button.grid(row=3, sticky="we")
+        # окно для данных
+        self.data_panel = customtkinter.CTkFrame(self, fg_color='#B0C4DE', corner_radius=10, border_color='black', border_width=1, height=40)
+        self.data_panel.grid(row=1, column=1, sticky='ew', padx=10, pady=1)
+        for i, name in zip([0, 2, 4], ['Груз', 'Угол', 'Фазовая\nпоправка']):
+            label = customtkinter.CTkLabel(self.data_panel, text=name, fg_color='#4682B4', width=50, corner_radius=5)
+            label.grid(row=0, column=i, padx=10, pady=2)
 
+        for i in [1, 3, 5]:
+            entry_window = customtkinter.CTkEntry(self.data_panel, width=50)
+            entry_window.grid(row=0, column=i, padx=10, pady=2)
 
-        # лого и тайтл на сайдбаре
-        self.logo_image = customtkinter.CTkImage(Image.open('images/logo_image.png'), size=(160, 100))
-
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame,
-                                                 text='Vibration',
-                                                 font=customtkinter.CTkFont(family='Courier New', size=20, weight='bold'),
-                                                 image=self.logo_image,
-                                                 compound="top")
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 100))
+        self.result_button = customtkinter.CTkButton(self.data_panel, text='Расчет', fg_color='#228B22')
+        self.result_button.grid(row=0, column=6)
 
         # основное окно приложения и его разметка
         self.insert_items_frame = customtkinter.CTkFrame(self, fg_color="#B0C4DE", corner_radius=10)
-        self.insert_items_frame.grid(row=0, column=1, rowspan=4, sticky="nsew", padx=20, pady=10)
-        self.insert_items_frame.grid_columnconfigure(list(range(5)), weight=1)
+        self.insert_items_frame.grid(row=2, column=1, sticky="nsew", padx=10, pady=1)
+        #self.insert_items_frame.grid_columnconfigure(0, weight=1)
+        self.insert_items_frame.grid_columnconfigure(list(range(14)), weight=1)
         self.insert_items_frame.grid_rowconfigure((0, 1, 2), weight=1)
 
-        # создаем 13 фреймов для подшипников в основном окне
+        # создаем 14 фреймов для подшипников в основном окне
         self.frame_items = []
-        for i in range(13):
-            item_frame = customtkinter.CTkFrame(self.insert_items_frame, fg_color='#6495ED', corner_radius=10)
-            item_frame.grid(row=i // 5, column=i - ((i // 5) * 5), padx=10, pady=10, sticky="nsew")
-            item_frame.grid_rowconfigure(0, weight=1)
-            item_frame.grid_rowconfigure(1, weight=4)
-            item_frame.grid_columnconfigure(0, weight=1)
-            self.frame_items.append(item_frame)
+        for i in range(3):
+            for j in range(14):
+                item_frame = customtkinter.CTkFrame(self.insert_items_frame, fg_color='#6495ED', corner_radius=10, border_color='black', border_width=1)
+                item_frame.grid(row=i, column=j, padx=1, pady=2, sticky="nsew")
+                item_frame.grid_rowconfigure(0, weight=1)
+                item_frame.grid_rowconfigure(1, weight=4)
+                item_frame.grid_columnconfigure(0, weight=1)
+                self.frame_items.append(item_frame)
 
         # создаем названия и фреймы для столбцов значений на фреймах подшипников
         self.label_items = []
         self.values_frames = []
-        for i in range(13):
+        for i in range(1, 14):
             item_frame = self.frame_items[i]
             item_label = customtkinter.CTkLabel(item_frame,
-                                                text=f'Подшипник №{i + 1}',
+                                                text=f'№{i}',
                                                 fg_color='#FFFFF0',
                                                 width=150,
                                                 corner_radius=10,
-                                                font=self.main_font)
+                                                font=self.main_font,
+                                                text_color="black")
             item_label.grid(row=0, padx=20, pady=10, sticky="n")
             self.label_items.append(item_label)
 
-            value_frame = customtkinter.CTkFrame(item_frame, fg_color='transparent')
-            value_frame.grid(row=1, padx=20, pady=0, sticky="nsew")
+            value_frame = customtkinter.CTkFrame(item_frame, fg_color='transparent', corner_radius=10)
+            value_frame.grid(row=1, padx=1, pady=10, sticky="nsew")
             value_frame.grid_columnconfigure((0, 1), weight=1)
             self.values_frames.append(value_frame)
 
         # создаем input окна для амплитуд и фаз
         for i in range(13):
             value_frame = self.values_frames[i]
-            label_a = customtkinter.CTkLabel(value_frame, text='Амплитуда', width=50, font=self.main_font)
-            label_f = customtkinter.CTkLabel(value_frame, text='Фаза', width=50, font=self.main_font)
-            label_a.grid(row=0, column=0, padx=[0, 5], pady=5)
-            label_f.grid(row=0, column=1, padx=[0, 5], pady=5)
+            label_a = customtkinter.CTkLabel(value_frame, text='Ампли\nтуда', width=1, font=self.main_font)
+            label_f = customtkinter.CTkLabel(value_frame, text='Фаза', width=1, font=self.main_font)
+            label_a.grid(row=0, column=0, padx=1, pady=1)
+            label_f.grid(row=0, column=1, padx=1, pady=1)
             for j in range(1, 4):
-                item_entry_amp = customtkinter.CTkEntry(value_frame, width=50)
-                item_entry_amp.grid(row=j, column=0, padx=5, pady=5)
-                item_entry_f = customtkinter.CTkEntry(value_frame, width=50)
-                item_entry_f.grid(row=j, column=1, padx=5, pady=5)
+                item_entry_amp = customtkinter.CTkEntry(value_frame)
+                item_entry_amp.grid(row=j, column=0, sticky='we')
+                item_entry_f = customtkinter.CTkEntry(value_frame)
+                item_entry_f.grid(row=j, column=1, sticky='ew')
 
-        # фрейм для дополнительных данных
-        self.additional_data_frame = customtkinter.CTkFrame(self.insert_items_frame, fg_color='#2F4F4F', corner_radius=10)
-        self.additional_data_frame.grid(row=2, column=3, padx=10, pady=10, sticky="nsew")
-        self.additional_data_frame.grid_rowconfigure(0, weight=1)
-        self.additional_data_frame.grid_rowconfigure(1, weight=3)
-        self.additional_data_frame.grid_columnconfigure(0, weight=1)
 
-        label_add_data_frame = customtkinter.CTkLabel(self.additional_data_frame,
-                                                      text='Данные',
-                                                      fg_color='#FFFFF0',
-                                                      width=150,
-                                                      corner_radius=10,
-                                                      font=self.main_font)
-        label_add_data_frame.grid(row=0, padx=20, pady=10, sticky="ns")
-        self.value_add_data_frame = customtkinter.CTkFrame(self.additional_data_frame, fg_color="transparent")
-        self.value_add_data_frame.grid(row=1, padx=20, pady=0, sticky="nswe")
-        self.value_add_data_frame.grid_rowconfigure((0, 1, 2), weight=1)
-        self.value_add_data_frame.grid_columnconfigure((0, 1), weight=1)
+        # второй ряд
+        self.label_items2 = []
+        self.values_frames2 = []
+        for i in range(15, 28):
+            item_frame = self.frame_items[i]
+            item_label = customtkinter.CTkLabel(item_frame,
+                                                text=f'№{i - 14}',
+                                                fg_color='#FFFFF0',
+                                                width=150,
+                                                corner_radius=10,
+                                                font=self.main_font,
+                                                text_color="black")
+            item_label.grid(row=0, padx=20, pady=10, sticky="n")
+            self.label_items2.append(item_label)
 
-        for i, name in enumerate(['Груз', 'Угол', 'Фазовая\nпоправка']):
-            label_data = customtkinter.CTkLabel(self.value_add_data_frame,
-                                                text=name,
-                                                width=50,
-                                                text_color='white',
-                                                font=self.main_font)
-            label_data.grid(row=i, column=0, padx=5, pady=5)
-            inputs = customtkinter.CTkEntry(self.value_add_data_frame, width=50)
-            inputs.grid(row=i, column=1, padx=5, pady=5)
+            value_frame = customtkinter.CTkFrame(item_frame, fg_color='transparent', corner_radius=10)
+            value_frame.grid(row=1, padx=1, pady=10, sticky="nsew")
+            value_frame.grid_columnconfigure((0, 1), weight=1)
+            self.values_frames2.append(value_frame)
 
-        # кнопка для расчета результата
-        self.result_button = customtkinter.CTkButton(self.insert_items_frame,
-                                                     text='Расчет',
-                                                     fg_color='green',
-                                                     height=50,
-                                                     font=self.main_font)
-        self.result_button.grid(row=2, column=4)
+        for i in range(13):
+            value_frame = self.values_frames2[i]
+            label_a = customtkinter.CTkLabel(value_frame, text='Ампли\nтуда', width=1, font=self.main_font)
+            label_f = customtkinter.CTkLabel(value_frame, text='Фаза', width=1, font=self.main_font)
+            label_a.grid(row=0, column=0, padx=1, pady=1)
+            label_f.grid(row=0, column=1, padx=1, pady=1)
+            for j in range(1, 4):
+                item_entry_amp = customtkinter.CTkEntry(value_frame)
+                item_entry_amp.grid(row=j, column=0, sticky='we')
+                item_entry_f = customtkinter.CTkEntry(value_frame)
+                item_entry_f.grid(row=j, column=1, sticky='ew')
+
+        # третий ряд
+        self.label_items3 = []
+        self.values_frames3 = []
+        for i in range(29, 42):
+            item_frame = self.frame_items[i]
+            item_frame.configure(fg_color='#3CB371')
+            item_label = customtkinter.CTkLabel(item_frame,
+                                                text=f'№{i - 28}',
+                                                fg_color='#FFFFF0',
+                                                width=150,
+                                                corner_radius=10,
+                                                font=self.main_font,
+                                                text_color="black")
+            item_label.grid(row=0, padx=20, pady=10, sticky="n")
+            self.label_items3.append(item_label)
+
+            value_frame = customtkinter.CTkFrame(item_frame, fg_color='transparent', corner_radius=10)
+            value_frame.grid(row=1, padx=1, pady=10, sticky="nsew")
+            value_frame.grid_columnconfigure((0, 1), weight=1)
+            self.values_frames3.append(value_frame)
+
+        for i in range(13):
+            value_frame = self.values_frames3[i]
+            label_a = customtkinter.CTkLabel(value_frame, text='Ампли\nтуда', width=1, font=self.main_font)
+            label_f = customtkinter.CTkLabel(value_frame, text='Фаза', width=1, font=self.main_font)
+            label_a.grid(row=0, column=0, padx=1, pady=1)
+            label_f.grid(row=0, column=1, padx=1, pady=1)
+            for j in range(1, 4):
+                item_entry_amp = customtkinter.CTkEntry(value_frame)
+                item_entry_amp.grid(row=j, column=0, sticky='we')
+                item_entry_f = customtkinter.CTkEntry(value_frame)
+                item_entry_f.grid(row=j, column=1, sticky='ew')
+
+        # third_row_title = self.frame_items[28]
+        # label_for_third_row = customtkinter.CTkLabel(third_row_title, text='r')
+        # label_for_third_row.grid(row=0)
+
+        first_row_title = self.frame_items[0]
+        label_for_first_row = customtkinter.CTkLabel(first_row_title, text='1')
+        label_for_first_row.grid(row=0)
+
+        second_row_title = self.frame_items[14]
+        label_for_second_row = customtkinter.CTkLabel(second_row_title, text='2')
+        label_for_second_row.grid(row=0)
+
+
 
 
 if __name__ == '__main__':
